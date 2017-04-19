@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ingress-http-deploy
+  labels:
+    ingress: http
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        ingress: http
+    spec:
+      containers:
+      - name: echoserver
+        image: gcr.io/google_containers/echoserver:1.4
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-http-svc
+  namespace: default
+  labels:
+    ingress: http
+spec:
+  selector:
+    ingress: http
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http

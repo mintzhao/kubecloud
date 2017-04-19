@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ingress-https-deploy
+  labels:
+    ingress: https
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        ingress: https
+    spec:
+      containers:
+      - name: echoserver
+        image: gcr.io/google_containers/echoserver:1.4
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-https-svc
+  namespace: default
+  labels:
+    ingress: https
+spec:
+  selector:
+    ingress: https
+  ports:
+  - port: 443
+    targetPort: 8080
+    protocol: TCP
+    name: https

@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-registry
+  namespace: kube-system
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-registry
+        version: 2.6.1
+    spec:
+      volumes:
+      - name: registry-certs
+        hostPath:
+          path: "/root/registry/certs"
+      - name: registry-data
+        hostPath:
+          path: "/root/registry/data"
+      containers:
+      - name: registry
+        image: registry:2.6.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: REGISTRY_HTTP_TLS_CERTIFICATE
+          value: '/certs/domain.crt'
+        - name: REGISTRY_HTTP_TLS_KEY
+          value: '/certs/domain.key'
+        volumeMounts:
+          - mountPath: /certs
+            name: registry-certs
+          - mountPath: /var/lib/registry
+            name: registry-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-registry
+  namespace: kube-system
+spec:
+  selector:
+    k8s-app: kube-registry
+    version: 2.6.1
+  ports:
+  - port: 5000
+    targetPort: 5000
