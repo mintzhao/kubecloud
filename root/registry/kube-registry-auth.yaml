@@ -1,44 +1,39 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: kube-registry
+  name: kube-registry-auth
   namespace: kube-system
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        k8s-app: kube-registry
-        version: 0.0.3
+        k8s-app: kube-registry-auth
+        version: 0.0.1
     spec:
       volumes:
-      - name: registry-data
-        hostPath:
-          path: "/root/registry/data"
       - name: registry-config
         hostPath:
           path: "/root/registry/config"
       containers:
-      - name: registry
-        image: registry:2.6.1
+      - name: auth
+        image: cesanta/docker_auth:stable
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 5000
+        - containerPort: 5001
         volumeMounts:
-          - mountPath: /var/lib/registry
-            name: registry-data
-          - mountPath: /etc/docker/registry
+          - mountPath: /config
             name: registry-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: kube-registry
+  name: kube-registry-auth
   namespace: kube-system
 spec:
   selector:
-    k8s-app: kube-registry
-    version: 0.0.3
+    k8s-app: kube-registry-auth
+    version: 0.0.1
   ports:
-  - port: 5000
-    targetPort: 5000
+  - port: 5001
+    targetPort: 5001

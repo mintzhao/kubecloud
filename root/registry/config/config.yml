@@ -1,0 +1,92 @@
+version: 0.1
+log:
+  accesslog:
+    disabled: false
+  level: debug
+  formatter: logstash
+  fields:
+    service: kube-registry
+  hooks:
+    - type: mail
+      disabled: true
+      levels:
+        - panic
+      options:
+        smtp:
+          addr: mail.example.com:25
+          username: mailuser
+          password: password
+          insecure: true
+        from: sender@example.com
+        to:
+          - errors@example.com
+storage:
+  filesystem:
+    rootdirectory: /var/lib/registry
+    maxthreads: 100
+  delete:
+    enabled: true
+  redirect:
+    disable: false
+  cache:
+    blobdescriptor: inmemory
+  maintenance:
+    uploadpurging:
+      enabled: true
+      age: 168h
+      interval: 24h
+      dryrun: false
+    readonly:
+      enabled: false
+auth:
+  token:
+    realm: "https://image.example.com/auth"
+    service: "Docker registry"
+    issuer: "registry-token-issuer"
+    rootcertbundle: "/etc/docker/registry/ssl/image.pem"
+http:
+  addr: 0.0.0.0:5000
+  net: tcp
+  prefix:
+  host:
+  secret: asecretforlocaldevelopment
+  relativeurls: false
+  #debug:
+    #addr: localhost:5001
+  headers:
+    X-Content-Type-Options: [nosniff]
+  http2:
+    disabled: false
+redis:
+  addr: kube-registry-redis.kube-system.cluster.local:6379
+  password:
+  db: 0
+  dialtimeout: 10ms
+  readtimeout: 10ms
+  writetimeout: 10ms
+  pool:
+    maxidle: 16
+    maxactive: 64
+    idletimeout: 300s
+#health:
+#  storagedriver:
+#    enabled: true
+#    interval: 10s
+#    threshold: 3
+#  tcp:
+#    - addr: kube-registry-redis.kube-system.cluster.local:6379
+#      timeout: 3s
+#      interval: 10s
+#      threshold: 3
+proxy:
+  remoteurl: https://registry-1.docker.io
+  username:
+  password:
+validation:
+  enabled: false
+  manifests:
+    urls:
+      allow:
+        - ^https?://([^/]+\.)*example\.com/
+      deny:
+        - ^https?://www\.example\.com/

@@ -1,0 +1,44 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-registry-redis
+  namespace: kube-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-registry-redis
+        version: 3.2.8-alpine
+    spec:
+      volumes:
+      - name: registry-redis-data
+        hostPath:
+          path: "/root/registry/redis/data"
+      - name: registry-redis-config
+        hostPath:
+          path: "/root/registry/redis/config"
+      containers:
+      - name: redis
+        image: redis:3.2.8-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+          - mountPath: /data
+            name: registry-redis-data
+          - mountPath: /usr/local/etc/redis
+            name: registry-redis-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-registry-redis
+  namespace: kube-system
+spec:
+  selector:
+    k8s-app: kube-registry-redis
+    version: 3.2.8-alpine
+  ports:
+  - port: 6379
+    targetPort: 6379
