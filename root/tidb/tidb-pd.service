@@ -1,0 +1,14 @@
+[Unit]
+Description=TIDB PD Server
+After=network.target
+
+[Service]
+type=notify
+ExecStart=/home/deploy/tidb/bin/pd-server \
+              --data-dir=pd \
+              --log-file=/home/deploy/tidb/log/pd.log
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -6,11 +6,11 @@
   },
   "names": [
     {
-      "C": "CN",
+      "C": "China",
       "ST": "BeiJing",
       "L": "BeiJing",
       "O": "kubecloud",
-      "OU": "System"
+      "OU": "Auth"
     }
   ]
 }

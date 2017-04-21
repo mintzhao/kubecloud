@@ -1,0 +1,14 @@
+[Unit]
+Description=TIDB Server
+After=network.target
+
+[Service]
+ExecStart=/home/deploy/tidb/bin/tidb-server \
+              --store=tikv \
+              --path="127.0.0.1:2379" \
+              --log-file=/home/deploy/tidb/log/tidb.log
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=TIDB TIKV Server
+After=network.target
+
+[Service]
+type=notify
+ExecStart=/home/deploy/tidb/bin/tikv-server \
+              --pd="127.0.0.1:2379" \
+              --store=tikv \
+              --log-file=/home/deploy/tidb/log/tikv.log
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
