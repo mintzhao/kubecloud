@@ -1,0 +1,14 @@
+[Unit]
+Description=Shadowsocks Server
+After=network.target
+
+[Service]
+ExecStart=ssserver \
+        -c /root/shadowsocks/shadowsocks.json \
+        -d \
+        start \
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
