@@ -10,9 +10,6 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
 spec:
   replicas: 2
-  selector:
-    k8s-app: elasticsearch-logging
-    version: v1
   template:
     metadata:
       labels:
