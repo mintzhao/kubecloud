@@ -16,5 +16,8 @@ KUBELET_API_SERVER="--api-servers=http://10.1.2.154:8080"
 ## pod infrastructure container
 KUBELET_POD_INFRA_CONTAINER="--pod-infra-container-image=gcr.io/google_containers/pause-amd64:3.0"
 #
+## node labels
+KUBELET_LABELS="--node-labels=beta.kubernetes.io/fluentd-ds-ready=true"
+#
 ## Add your own!
 KUBELET_ARGS="--cluster-dns=192.168.3.10  --cert-dir=/etc/kubernetes/ssl --cluster-domain=cluster.local --serialize-image-pulls=false"
