@@ -26,6 +26,7 @@ metadata:
   labels:
     kubernetes.io/cluster-service: 'true'
     kubernetes.io/name: Heapster
+    task: monitoring
   name: monitoring-heapster
   namespace: kube-system
 spec:

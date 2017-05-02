@@ -19,5 +19,8 @@ KUBELET_POD_INFRA_CONTAINER="--pod-infra-container-image=gcr.io/google_container
 ## node labels
 KUBELET_LABELS="--node-labels=beta.kubernetes.io/fluentd-ds-ready=true"
 #
+## node network plugin
+KUBELET_NET_PLUGIN="--network-plugin=cni"
+#
 ## Add your own!
 KUBELET_ARGS="--cluster-dns=192.168.3.10  --cert-dir=/etc/kubernetes/ssl --cluster-domain=cluster.local --serialize-image-pulls=false"

@@ -51,6 +51,7 @@ metadata:
     # If you are NOT using this as an addon, you should comment out this line.
     kubernetes.io/cluster-service: 'true'
     kubernetes.io/name: monitoring-grafana
+    task: monitoring
   name: monitoring-grafana
   namespace: kube-system
 spec:
@@ -64,3 +65,22 @@ spec:
     targetPort: 3000
   selector:
     k8s-app: grafana
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: monitoring-grafana
+  namespace: kube-system
+  labels:
+    kubernetes.io/cluster-service: 'true'
+    kubernetes.io/name: monitoring-grafana
+    task: monitoring
+spec:
+  rules:
+  - host: grafana.example.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: monitoring-grafana
+          servicePort: 80

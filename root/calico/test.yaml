@@ -1,0 +1,99 @@
+# https://zhuanlan.zhihu.com/p/26614324
+# namespace `ns-calico1` has Network Isolation Policy
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-calico1
+  labels:
+    user: calico1
+  annotations:
+    net.beta.kubernetes.io/network-policy: |
+      {
+        "ingress": {
+          "isolation": "DefaultDeny"
+        }
+      }
+---
+# namespace `ns-calico1` has a nginx server
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: calico1-nginx
+  namespace: ns-calico1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        user: calico1
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calico1-nginx
+  namespace: ns-calico1
+  labels: 
+    user: calico1
+spec:
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+---
+apiVersion: extensions/v1beta1
+kind: NetworkPolicy
+metadata:
+ name: calico1-network-policy
+ namespace: ns-calico1
+spec:
+ podSelector:
+  matchLabels:
+    user: calico1
+ ingress:
+  - from:
+     - namespaceSelector:
+        matchLabels:
+         user: calico1
+     - podSelector:
+        matchLabels:
+         user: calico1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: calico1-busybox
+  namespace: ns-calico1
+  labels:
+    user: calico1
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command:
+      - sleep
+      - "3600"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-calico2
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: calico2-busybox
+  namespace: ns-calico2
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command:
+      - sleep
+      - "3600"

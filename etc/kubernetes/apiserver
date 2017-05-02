@@ -18,6 +18,9 @@ KUBE_ETCD_SERVERS="--etcd-servers=https://10.1.2.154:2379,https://10.1.2.147:237
 #
 ## Address range to use for services
 KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=192.168.3.0/24"
+# 
+## runtime config
+KUBE_RUNTIME_CONFIG="--runtime-config=extensions/v1beta1/networkpolicies=true"
 #
 ## default admission control policies
 KUBE_ADMISSION_CONTROL="--admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota"

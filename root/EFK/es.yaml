@@ -6,15 +6,17 @@ metadata:
   labels:
     k8s-app: elasticsearch-logging
     version: v1
+    task: logging
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
         k8s-app: elasticsearch-logging
         version: v1
+        task: logging
         kubernetes.io/cluster-service: "true"
     spec:
       containers:
@@ -52,6 +54,7 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: elasticsearch-logging
+    task: logging
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     kubernetes.io/name: "Elasticsearch"

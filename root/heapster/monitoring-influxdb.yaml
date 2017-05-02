@@ -29,6 +29,7 @@ metadata:
   labels:
     kubernetes.io/cluster-service: 'true'
     kubernetes.io/name: monitoring-influxdb
+    task: monitoring
 spec:
   selector:
     k8s-app: influxdb

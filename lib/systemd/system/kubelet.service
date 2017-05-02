@@ -19,6 +19,7 @@ ExecStart=/usr/bin/kubelet \
             $KUBELET_POD_INFRA_CONTAINER \
             $KUBELET_ARGS \
             $KUBELET_LABELS \
+            $KUBELET_NET_PLUGIN \
 
 Restart=on-failure
 

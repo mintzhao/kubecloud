@@ -3,5 +3,8 @@
 
 # default config should be adequate
 
+# 
+## network proxy
+KUBE_PROXY_PROXY="--proxy-mode=iptables"
 # Add your own!
 KUBE_PROXY_ARGS="--bind-address=10.1.2.147 --hostname-override=node1"
