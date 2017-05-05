@@ -16,8 +16,7 @@
 # to work with Kubernetes logging. Inspired by the Dockerfile
 # dockerfile/elasticsearch
 
-FROM openjdk:9-jre
-
+FROM openjdk:8-jre
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV ELASTICSEARCH_VERSION 5.3.2
@@ -29,7 +28,7 @@ RUN apt-get update \
 RUN set -x \
     && cd / \
     && mkdir /elasticsearch \
-    && curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/$ELASTICSEARCH_VERSION/elasticsearch-$ELASTICSEARCH_VERSION.tar.gz \
+    && curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.tar.gz \
     && tar xf elasticsearch-$ELASTICSEARCH_VERSION.tar.gz -C /elasticsearch --strip-components=1 \
     && rm elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
 
@@ -43,7 +42,9 @@ COPY elasticsearch_logging_discovery /
 
 RUN useradd --no-create-home --user-group elasticsearch \
     && mkdir /data \
-    && chown -R elasticsearch:elasticsearch /elasticsearch
+    && chown -R elasticsearch:elasticsearch /elasticsearch \
+    && chown -R elasticsearch:elasticsearch /run.sh \
+    && chown -R elasticsearch:elasticsearch /elasticsearch_logging_discovery
 
 VOLUME ["/data"]
 EXPOSE 9200 9300

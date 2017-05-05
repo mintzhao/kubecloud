@@ -5,29 +5,27 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: elasticsearch-logging
-    version: v1
     task: logging
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
 spec:
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
         k8s-app: elasticsearch-logging
-        version: v1
         task: logging
         kubernetes.io/cluster-service: "true"
     spec:
       containers:
       - image: gcr.io/google_containers/elasticsearch:v2.4.1-2
         name: elasticsearch-logging
-        #resources:
+        resources:
           # need more cpu upon initialization, therefore burstable class
-          #limits:
-            #cpu: 1000m
-          #requests:
-            #cpu: 100m
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
         ports:
         - containerPort: 9200
           name: db
