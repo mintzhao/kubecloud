@@ -3,27 +3,33 @@
 ##
 ## The following values are used to configure the kube-apiserver
 ##
-#
+
 ## The address on the local server to listen to.
-KUBE_API_ADDRESS="--advertise-address=10.1.2.154 --bind-address=10.1.2.154 --insecure-bind-address=10.1.2.154"
-#
-## The port on the local server to listen on.
-KUBE_API_PORT="--insecure-port=8080 --secure-port=6443"
-#
-## Port minions listen on
-#KUBELET_PORT="--kubelet-port=10250"
-#
+KUBE_API_ADDRESS="--advertise-address=10.1.2.154 --bind-address=10.1.2.154 --insecure-bind-address=10.1.2.154 --insecure-port=8080 --secure-port=6443"
+
+## Kubernetes apiserver cluster
+KUBE_CLUSTER="--apiserver-count=1 --service-node-port-range=30000-32767 --service-cluster-ip-range=192.168.3.0/24"
+
 ## Comma separated list of nodes in the etcd cluster
-KUBE_ETCD_SERVERS="--etcd-servers=https://10.1.2.154:2379,https://10.1.2.147:2379 --etcd-cafile=/etc/kubernetes/ssl/ca.pem --etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem --etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem"
-#
-## Address range to use for services
-KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=192.168.3.0/24"
-# 
+KUBE_ETCD_SERVERS="--etcd-servers=https://10.1.2.154:2379,https://10.1.2.147:2379 --etcd-cafile=/etc/kubernetes/ssl/ca.pem --etcd-certfile=/etc/kubernetes/ssl/cert.pem --etcd-keyfile=/etc/kubernetes/ssl/cert-key.pem --etcd-prefix=/registry"
+
 ## runtime config
 KUBE_RUNTIME_CONFIG="--runtime-config=extensions/v1beta1/networkpolicies=true"
-#
+
 ## default admission control policies
 KUBE_ADMISSION_CONTROL="--admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota"
-#
+
+## kubernetes authorization
+KUBE_AUTHORIZATION="--authorization-mode=AlwaysAllow"
+
+## kubernetes authentication
+KUBE_AUTHENTICATION="--client-ca-file=/etc/kubernetes/ssl/ca.pem"
+
+## kubernetes tls/https/serviceAccount
+KUBE_TLS="--cert-dir=/var/run/kubernetes --service-account-key-file=/etc/kubernetes/ssl/cert-key.pem --tls-ca-file=/etc/kubernetes/ssl/ca.pem --tls-cert-file=/etc/kubernetes/ssl/cert.pem --tls-private-key-file=/etc/kubernetes/ssl/cert-key.pem"
+
+## kubernetes cors
+KUBE_CORS="--cors-allowed-origins="
+
 ## Add your own!
-KUBE_API_ARGS="  --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem  --enable-swagger-ui=true --apiserver-count=1 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --enable-garbage-collector=true"
+KUBE_API_ARGS="--enable-swagger-ui=true --enable-garbage-collector=true"

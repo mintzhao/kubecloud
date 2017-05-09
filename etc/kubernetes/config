@@ -10,10 +10,7 @@
 #   kubelet.service
 #   kube-proxy.service
 # logging to stderr means we get it in the systemd journal
-KUBE_LOGTOSTDERR="--logtostderr=true"
-
-# journal message level, 0 is debug
-KUBE_LOG_LEVEL="--v=0"
+KUBE_LOG="--log-dir=/var/log/kubernetes --logtostderr=false --alsologtostderr=true --log-flush-frequency=5s --stderrthreshold=2 --v=0"
 
 # Should this cluster be allowed to run privileged docker containers
 KUBE_ALLOW_PRIV="--allow-privileged=true"

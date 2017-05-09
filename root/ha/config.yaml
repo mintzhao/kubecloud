@@ -1,0 +1,27 @@
+# how often to connect to apiserver to check cluster status
+interval: 1m
+# threshold strategies
+strategies:
+  # cluster strategies, the scope is the entire cluster node
+  cluster:
+    general:
+    - strategy_type: ResourceStrategy
+      fallthrough: true
+      resource_rules:
+        memory: 60G
+        cpu: 30000m
+      operations:
+      - operation_type: webhook
+        url: http://baidu.com
+  # node strategies, the scope is a single node
+  nodes:
+    # strategies that every node has
+    general:
+      - strategy_type: ResourceStrategy
+        fallthrough: true
+        resource_rules:
+          memory: 6G
+          cpu: 3000m
+        operations:
+        - operation_type: webhook
+          url: http://cloudin.cn

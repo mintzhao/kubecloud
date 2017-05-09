@@ -4,4 +4,7 @@
 # default config should be adequate
 
 # Add your own!
-KUBE_SCHEDULER_ARGS=" --address=10.1.2.154"
+KUBE_SCHEDULER_ARGS=""
+
+## kubernetes scheduler address
+KUBE_ADDRESS="--address=10.1.2.154 --port=10251"

@@ -9,12 +9,9 @@ WorkingDirectory=/var/lib/kubelet
 EnvironmentFile=/etc/kubernetes/config
 EnvironmentFile=/etc/kubernetes/kubelet
 ExecStart=/usr/bin/kubelet \
-            $KUBE_LOGTOSTDERR \
-            $KUBE_LOG_LEVEL \
+            $KUBE_LOG \
             $KUBELET_API_SERVER \
             $KUBELET_ADDRESS \
-            $KUBELET_PORT \
-            $KUBELET_HOSTNAME \
             $KUBE_ALLOW_PRIV \
             $KUBELET_POD_INFRA_CONTAINER \
             $KUBELET_ARGS \

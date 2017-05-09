@@ -6,17 +6,18 @@ After=network.target
 EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/apiserver
 ExecStart=/root/local/bin/kube-apiserver \
-	    $KUBE_LOGTOSTDERR \
-	    $KUBE_LOG_LEVEL \
+	    $KUBE_LOG \
+	    $KUBE_CLUSTER \
+	    $KUBE_AUTHORIZATION \
+	    $KUBE_AUTHENTICATION \
+	    $KUBE_CORS \
 	    $KUBE_ETCD_SERVERS \
 	    $KUBE_API_ADDRESS \
-	    $KUBE_API_PORT \
-	    $KUBELET_PORT \
 	    $KUBE_ALLOW_PRIV \
-	    $KUBE_SERVICE_ADDRESSES \
 	    $KUBE_ADMISSION_CONTROL \
 	    $KUBE_API_ARGS \
         $KUBE_RUNTIME_CONFIG \
+        $KUBE_TLS \
 
 Restart=on-failure
 Type=notify

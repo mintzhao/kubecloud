@@ -5,10 +5,13 @@ Description=Kubernetes Controller Manager
 EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/controller-manager
 ExecStart=/root/local/bin/kube-controller-manager \
-	    $KUBE_LOGTOSTDERR \
-	    $KUBE_LOG_LEVEL \
+	    $KUBE_LOG \
 	    $KUBE_MASTER \
-	    $KUBE_CONTROLLER_MANAGER_ARGS
+	    $KUBE_ADDRESS \
+	    $KUBE_SERVICEACCOUNT \
+	    $KUBE_CLUSTER \
+	    $KUBE_CONTROLLER_MANAGER_ARGS \
+
 Restart=on-failure
 LimitNOFILE=65536
 

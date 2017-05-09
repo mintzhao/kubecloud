@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cluster-ha
+  namespace: kube-system
+  labels:
+    k8s-app: cluster-ha
+    kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: cluster-ha
+        kubernetes.io/cluster-service: "true"
+    spec:
+      containers:
+      - image: docker.cloudin.com/google_containers/cluster-ha
+        name: cluster-ha
+        imagePullPolicy: lways
