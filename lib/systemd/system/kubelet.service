@@ -17,6 +17,7 @@ ExecStart=/usr/bin/kubelet \
             $KUBELET_ARGS \
             $KUBELET_LABELS \
             $KUBELET_NET_PLUGIN \
+            $KUBE_GC \
 
 Restart=on-failure
 

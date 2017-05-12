@@ -20,5 +20,8 @@ KUBELET_LABELS="--node-labels=beta.kubernetes.io/fluentd-ds-ready=true"
 ## node network plugin
 #KUBELET_NET_PLUGIN="--network-plugin=cni"
 
+## node gc
+KUBE_GC="--image-gc-high-threshold=90 --image-gc-low-threshold=80 --maximum-dead-containers=240 maximum-dead-containers-per-container=2 --minimum-container-ttl-duration=1m0s --minimum-image-ttl-duration=2m0s "
+
 ## Add your own!
-KUBELET_ARGS="--serialize-image-pulls=false"
+KUBELET_ARGS="--serialize-image-pulls=true --allow-privileged=true"

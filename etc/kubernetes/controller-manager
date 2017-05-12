@@ -12,5 +12,8 @@ KUBE_SERVICEACCOUNT="--root-ca-file=/etc/kubernetes/ssl/ca.pem --service-account
 ## kubernetes cluster
 KUBE_CLUSTER="--cluster-name=kubernetes --service-cluster-ip-range=192.168.3.0/24"
 
+## gc
+KUBE_GC="--enable-garbage-collector=true --deleting-pods-burst=10 --deleteing-pods-qps=0.1 --pod-eviction-timeout=5m0s --terminated-pod-gc-threshold=12500"
+
 # Add your own!
-KUBE_CONTROLLER_MANAGER_ARGS="--enable-garbage-collector=true"
+KUBE_CONTROLLER_MANAGER_ARGS=""

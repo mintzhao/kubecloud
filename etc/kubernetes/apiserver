@@ -31,5 +31,8 @@ KUBE_TLS="--cert-dir=/var/run/kubernetes --service-account-key-file=/etc/kuberne
 ## kubernetes cors
 KUBE_CORS="--cors-allowed-origins="
 
+## gc
+KUBE_GC="--delete-collection-workers=2 --enable-garbage-collector=true "
+
 ## Add your own!
 KUBE_API_ARGS="--enable-swagger-ui=true --enable-garbage-collector=true"

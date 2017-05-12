@@ -11,6 +11,7 @@ ExecStart=/root/local/bin/kube-controller-manager \
 	    $KUBE_SERVICEACCOUNT \
 	    $KUBE_CLUSTER \
 	    $KUBE_CONTROLLER_MANAGER_ARGS \
+	    $KUBE_GC \
 
 Restart=on-failure
 LimitNOFILE=65536
