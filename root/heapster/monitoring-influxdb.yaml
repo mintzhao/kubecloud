@@ -8,31 +8,56 @@ spec:
   template:
     metadata:
       labels:
-        k8s-app: influxdb
         task: monitoring
+        k8s-app: influxdb
     spec:
-      volumes:
-      - name: influxdb-storage
-        emptyDir: {}
+      automountServiceAccountToken: false
       containers:
       - name: influxdb
         image: gcr.io/google_containers/heapster-influxdb-amd64:v1.1.1
         volumeMounts:
         - mountPath: /data
           name: influxdb-storage
+      volumes:
+      - name: influxdb-storage
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: monitoring-influxdb
-  namespace: kube-system
   labels:
+    task: monitoring
+    # For use as a Cluster add-on (https://github.com/kubernetes/kubernetes/tree/master/cluster/addons)
+    # If you are NOT using this as an addon, you should comment out this line.
     kubernetes.io/cluster-service: 'true'
     kubernetes.io/name: monitoring-influxdb
-    task: monitoring
+  name: monitoring-influxdb
+  namespace: kube-system
 spec:
-  selector:
-    k8s-app: influxdb
   ports:
   - port: 8086
     targetPort: 8086
+    name: data
+  - port: 8088
+    targetPort: 8088
+    name: ui
+  selector:
+    k8s-app: influxdb
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: monitoring-influxdb
+  namespace: kube-system
+  annotations:
+    ingress.kubernetes.io/enable-ipport: "true"
+    ingress.kubernetes.io/ipport: "30006"
+spec:
+  rules:
+  - host: influxdb.cloudin.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: monitoring-influxdb
+          servicePort: 8088
