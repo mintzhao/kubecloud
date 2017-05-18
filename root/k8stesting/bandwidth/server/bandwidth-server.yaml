@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bandwidth-server
+  namespace: default
+  labels:
+    task: bandwidth-server-iperf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      task: bandwidth-server-iperf
+  template:
+    metadata:
+      labels:
+        task: bandwidth-server-iperf
+    spec:
+      containers:
+      - name: bandwidth-server
+        image: docker.cloudin.com/testing/bandwidth-server:v1.0.0
+        imagePullPolicy: Always
+      nodeSelector:
+        testing-role: server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bandwidth-server
+  namespace: default
+  labels:
+    task: bandwidth-server-iperf
+spec:
+  selector:
+    task: bandwidth-server-iperf
+  ports:
+  - port: 5001
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bandwidth-server
+  namespace: default
+  annotations:
+    ingress.kubernetes.io/enable-ipport: "true"
+    ingress.kubernetes.io/ipport: "30011"
+spec:
+  rules:
+  - host: iperf.server.bandwidth.cloudin.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: bandwidth-server
+          servicePort: 5001

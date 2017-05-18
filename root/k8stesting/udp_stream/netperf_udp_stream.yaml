@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: netperf-udp-stream
+  namespace: default
+  labels:
+    task: netperf-udp-stream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      task: netperf-udp-stream
+  template:
+    metadata:
+      labels:
+        task: netperf-udp-stream
+    spec:
+      containers:
+      - name: netperf-udp-stream
+        image: docker.cloudin.com/testing/netperf_udp_stream:v1.0.0
+        imagePullPolicy: Always
+        env:
+          - name: SERVER
+            value: netserver.default.svc.cluster.local
+      nodeSelector:
+        testing-role: client

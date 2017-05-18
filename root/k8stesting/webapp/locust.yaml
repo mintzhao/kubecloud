@@ -1,0 +1,114 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: locust-master
+  namespace: default
+  labels:
+    name: locust
+    role: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: locust
+      role: master
+  template:
+    metadata:
+      labels:
+        name: locust
+        role: master
+    spec:
+      containers:
+        - name: locust
+          image: docker.cloudin.com/testing/locust-tasks:latest
+          env:
+            - name: LOCUST_MODE
+              value: master
+            - name: TARGET_HOST
+              value: http://sample-webapp:8000
+          ports:
+            - name: loc-master-web
+              containerPort: 8089
+              protocol: TCP
+            - name: loc-master-p1
+              containerPort: 5557
+              protocol: TCP
+            - name: loc-master-p2
+              containerPort: 5558
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: locust-master
+  namespace: default
+  labels:
+    name: locust
+    role: master
+spec:
+  ports:
+    - port: 8089
+      targetPort: loc-master-web
+      protocol: TCP
+      name: loc-master-web
+    - port: 5557
+      targetPort: loc-master-p1
+      protocol: TCP
+      name: loc-master-p1
+    - port: 5558
+      targetPort: loc-master-p2
+      protocol: TCP
+      name: loc-master-p2
+  selector:
+    name: locust
+    role: master
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: locust-master
+  namespace: default
+  annotations:
+    ingress.kubernetes.io/enable-ipport: "true"
+    ingress.kubernetes.io/ipport: "30010"
+spec:
+  rules:
+  - host: testing.locust.cloudin.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: locust-master
+          servicePort: 8089
+---
+# worker
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: locust-worker
+  namespace: default
+  labels:
+    name: locust
+    role: worker
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      name: locust
+      role: worker
+  template:
+    metadata:
+      labels:
+        name: locust
+        role: worker
+    spec:
+      containers:
+        - name: locust
+          image: docker.cloudin.com/testing/locust-tasks:latest
+          env:
+            - name: LOCUST_MODE
+              value: worker
+            - name: LOCUST_MASTER
+              value: locust-master
+            - name: TARGET_HOST
+              value: http://sample-webapp:8000

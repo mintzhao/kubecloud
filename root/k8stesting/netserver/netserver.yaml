@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: netserver
+  namespace: default
+  labels:
+    task: netserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      task: netserver
+  template:
+    metadata:
+      labels:
+        task: netserver
+    spec:
+      containers:
+      - name: netserver
+        image: docker.cloudin.com/testing/netserver:v1.0.0
+        imagePullPolicy: Always
+      nodeSelector:
+        testing-role: server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netserver
+  namespace: default
+  labels:
+    task: netserver
+spec:
+  selector:
+    task: netserver
+  ports:
+  - port: 12865

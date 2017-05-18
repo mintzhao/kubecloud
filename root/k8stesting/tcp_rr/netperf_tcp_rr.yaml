@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: netperf-tcp-rr
+  namespace: default
+  labels:
+    task: netperf-tcp-rr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      task: netperf-tcp-rr
+  template:
+    metadata:
+      labels:
+        task: netperf-tcp-rr
+    spec:
+      containers:
+      - name: netperf-tcp-rr
+        image: docker.cloudin.com/testing/netperf_tcp_rr:v1.0.0
+        imagePullPolicy: Always
+        env:
+          - name: SERVER
+            value: netserver.default.svc.cluster.local
+      nodeSelector:
+        testing-role: client

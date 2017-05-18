@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: netperf-udp-rr
+  namespace: default
+  labels:
+    task: netperf-udp-rr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      task: netperf-udp-rr
+  template:
+    metadata:
+      labels:
+        task: netperf-udp-rr
+    spec:
+      containers:
+      - name: netperf-udp-rr
+        image: docker.cloudin.com/testing/netperf_udp_rr:v1.0.0
+        imagePullPolicy: Always
+        env:
+          - name: SERVER
+            value: netserver.default.svc.cluster.local
+      nodeSelector:
+        testing-role: client

@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bandwidth-client
+  namespace: default
+  labels:
+    task: bandwidth-client-iperf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      task: bandwidth-client-iperf
+  template:
+    metadata:
+      labels:
+        task: bandwidth-client-iperf
+    spec:
+      containers:
+      - name: bandwidth-client
+        image: docker.cloudin.com/testing/bandwidth-client:v1.0.0
+        imagePullPolicy: Always
+        env:
+          - name: SERVER
+            value: bandwidth-server.default.svc.cluster.local
+      nodeSelector:
+        testing-role: client
