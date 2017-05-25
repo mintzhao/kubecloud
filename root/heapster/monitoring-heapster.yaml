@@ -21,9 +21,11 @@ spec:
       containers:
       - name: heapster
         image: gcr.io/google_containers/heapster-amd64:v1.3.0
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         command:
         - /heapster
+        - --api-server=true
+        - --secure-port=0
         - --source=kubernetes:https://kubernetes.default
         - --sink=influxdb:http://monitoring-influxdb.kube-system.svc:8086
 ---
@@ -40,8 +42,8 @@ metadata:
   namespace: kube-system
 spec:
   ports:
-  - port: 80
-    targetPort: 8082
+  - port: 8082
+    name: heapster
   selector:
     k8s-app: heapster
 ---
@@ -61,4 +63,4 @@ spec:
       - path: /
         backend:
           serviceName: heapster
-          servicePort: 80
+          servicePort: 8082

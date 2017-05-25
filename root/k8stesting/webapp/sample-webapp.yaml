@@ -18,6 +18,10 @@ spec:
       containers:
       - name: sample-webapp
         image: docker.cloudin.com/testing/k8s-sample-webapp:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 50Mi
         ports:
         - containerPort: 8000
 ---
@@ -51,3 +55,21 @@ spec:
         backend:
           serviceName: sample-webapp
           servicePort: 8000
+---
+apiVersion: autoscaling/v2alpha1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sample-webapp
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: sample-webapp
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 50
