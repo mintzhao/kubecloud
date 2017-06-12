@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-aggregator
+  namespace: kube-public
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-aggregator
+  namespace: kube-public
+  labels:
+    kube-aggregator: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kube-aggregator: "true"
+  template:
+    metadata:
+      labels:
+        kube-aggregator: "true"
+    spec:
+      serviceAccountName: kube-aggregator
+      containers:
+      - name: kube-aggregator
+        image: docker.cloudin.com/kube-public/kube-aggregator:v1.0.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /version
+            port: 443
+            scheme: HTTPS
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /version
+            port: 443
+            scheme: HTTPS
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        args:
+        - "--proxy-client-cert-file=/etc/kubernetes/ssl/cert.pem"
+        - "--proxy-client-key-file=/etc/kubernetes/ssl/cert-key.pem"
+        - "--secure-port=0"
+        - "--tls-cert-file=/etc/kubernetes/ssl/cert.pem"
+        - "--tls-private-key-file=/etc/kubernetes/ssl/cert-key.pem"
+        - "--tls-ca-file=/etc/kubernetes/ssl/ca.pem"
+        - "--etcd-servers=http://10.1.8.182:2379,http://10.1.8.183:2379,http://10.1.8.184:2379"
+        ports:
+        - containerPort: 443
+        volumeMounts:
+        - mountPath: /etc/kubernetes/ssl
+          name: volume-ssl
+      volumes:
+      - name: volume-ssl
+        hostPath:
+          path: /etc/kubernetes/ssl
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    kube-aggregator: "true"
+  name: kube-aggregator
+  namespace: kube-public
+spec:
+  ports:
+  - port: 443
+  selector:
+    kube-aggregator: "true"
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kube-aggregator
+  namespace: kube-public
+  labels:
+    kube-aggregator: "true"
+  annotations:
+    ingress.kubernetes.io/enable-ipport: "true"
+    ingress.kubernetes.io/ipport: "30013"
+spec:
+  rules:
+  - host: aggregator.kube-public.kubernetes.cloudin.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kube-aggregator
+          servicePort: 443

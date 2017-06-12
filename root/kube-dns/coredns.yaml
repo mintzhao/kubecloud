@@ -1,0 +1,164 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+data:
+  Corefile: |-
+    .:53 {
+      {{- range $key, $middleware := .Values.middleware }}
+      {{- if $middleware.enabled }}
+      {{- if eq "kubernetes" $key }}
+        kubernetes {{ $middleware.clusterDomain }} {
+          cidrs {{ $middleware.clusterCidr }}
+        }
+      {{- end }}
+      {{- if eq "etcd" $key }}
+        etcd {{ range $middleware.zones }}{{ . }} {{ end }}{
+          {{ if $middleware.path }}path {{ $middleware.path }}{{ end }}
+          endpoint {{ $middleware.endpoint }}
+        }
+      {{- end }}
+      {{- if eq "loadbalance" $key }}
+        loadbalance {{ default "round_robin" $middleware.policy }}
+      {{- end }}
+      {{- if eq "log" $key }}
+        log {{ default "stdout" $middleware.file }}
+      {{- end }}
+      {{- if eq "errors" $key }}
+        errors {{ default "stderr" $middleware.file }}
+      {{- end }}
+      {{- if eq "health" $key }}
+        health
+      {{- end }}
+      {{- if eq "prometheus" $key }}
+        prometheus localhost:{{ $middleware.port }}
+      {{- end }}
+      {{- if eq "proxy" $key }}
+        proxy . /etc/resolv.conf
+      {{- end }}
+      {{- if eq "cache" $key }}
+        cache 30
+      {{- end }}
+      {{- end }}
+      {{- end }}
+    }
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: coredns
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    {{- if .Values.isClusterService }}
+    k8s-app: {{ .Chart.Name | quote }}
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "CoreDNS"
+    {{- else }}
+    app: {{ template "fullname" . }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- if .Values.isClusterService }}
+      k8s-app: {{ .Chart.Name | quote }}
+      {{- else }}
+      app: {{ template "fullname" . }}
+      {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- if .Values.isClusterService }}
+        k8s-app: {{ .Chart.Name | quote }}
+        {{- else }}
+        app: {{ template "fullname" . }}
+        {{- end }}
+        release: {{ .Release.Name | quote }}
+      annotations:
+        {{- if .Values.isClusterService }}
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+        scheduler.alpha.kubernetes.io/tolerations: '[{"key":"CriticalAddonsOnly", "operator":"Exists"}]'
+        {{- end }}
+    spec:
+      containers:
+      - name: "coredns"
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        args: [ "-conf", "/etc/coredns/Corefile" ]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/coredns
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        ports:
+        {{- if or (eq .Values.serviceProtocol "UDPNTCP") (eq .Values.serviceProtocol "UDP") }}
+        - containerPort: 53
+          name: dns
+          protocol: UDP
+        {{- end }}
+        {{- if or (eq .Values.serviceProtocol "UDPNTCP") (eq .Values.serviceProtocol "TCP") }}
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ template "fullname" . }}
+            items:
+            - key: Corefile
+              path: Corefile
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    {{- if .Values.isClusterService }}
+    k8s-app: {{ .Chart.Name | quote }}
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "CoreDNS"
+    {{- else }}
+    app: {{ template "fullname" . }}
+    {{- end }}
+  annotations:
+    {{- if .Values.middleware.prometheus.enabled }}
+    prometheus.io/scrape: "true"
+    prometheus.io/port: {{ .Values.middleware.prometheus.port | quote }}
+    {{- end }}
+spec:
+  selector:
+  {{- if .Values.isClusterService }}
+    k8s-app: {{ .Chart.Name | quote }}
+  {{- else }}
+    app: {{ template "fullname" . }}
+  {{- end }}
+  {{- if .Values.isClusterService }}
+  clusterIP: {{ .Values.middleware.kubernetes.clusterIP }}
+  {{- end }}
+  ports:
+  {{- if or (eq .Values.serviceProtocol "UDPNTCP") (eq .Values.serviceProtocol "UDP") }}
+  - name: dns
+    port: 53
+    protocol: UDP
+  {{- end }}
+  {{- if or (eq .Values.serviceProtocol "UDPNTCP") (eq .Values.serviceProtocol "TCP") }}
+  - name: dns-tcp
+    port: 53
+    protocol: TCP
+  {{- end }}
+  type: {{ default "ClusterIP" .Values.serviceType }}

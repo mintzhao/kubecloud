@@ -1,0 +1,89 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: federation-apiserver
+  namespace: federation
+  labels:
+    app: federated-cluster
+spec:
+  template:
+    metadata:
+      name: federation-apiserver
+      labels:
+        app: federated-cluster
+        module: federation-apiserver
+    spec:
+      containers:
+      - name: apiserver
+        image: docker.cloudin.com/google_containers/hyperkube-amd64:v1.6.2
+        env:
+          - name: ADVERTISE_ADDRESS
+            valueFrom:
+              configMapKeyRef:
+                name: federated-apiserver
+                key: advertise-address
+        command:
+          - /hyperkube
+          - federation-apiserver
+          - --bind-address=0.0.0.0
+          - --etcd-servers=http://localhost:2379
+          - --secure-port=443
+          #- --advertise-address=$(ADVERTISE_ADDRESS)
+          #- --token-auth-file=/etc/federation/apiserver/known-tokens.csv
+          #- --basic-auth-file=/etc/federation/apiserver/basic-auth.csv
+          - --client-ca-file=/etc/federation/apiserver/ca.crt
+          - --tls-cert-file=/etc/federation/apiserver/cert.pem
+          - --tls-private-key-file=/etc/federation/apiserver/cert-key.pem
+          - --admission-control=NamespaceLifecycle
+          - --anonymous-auth=true
+          - --storage-backend=etcd3
+        ports:
+          - containerPort: 443
+            name: https
+          - containerPort: 8080
+            name: local
+        volumeMounts:
+          - name: federation-apiserver-secrets
+            mountPath: /etc/federation/apiserver/
+            readOnly: true
+      - name: etcd
+        image: docker.cloudin.com/google_containers/etcd:3.0.17
+        command:
+          - "/usr/local/bin/etcd"
+        args:
+          - "--data-dir=/var/lib/etcd"
+        volumeMounts:
+          - name: etcd-data
+            mountPath: /var/lib/etcd
+      volumes:
+        - name: federation-apiserver-secrets
+          #secret:
+            #secretName: federation-apiserver-secrets
+          hostPath:
+            path: /etc/kubernetes/ssl
+        - name: etcd-data 
+          emptyDir: {}
+          #persistentVolumeClaim:
+            #claimName: federation-apiserver-etcd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: federation-apiserver
+  namespace: federation
+  labels:
+    app: federated-cluster
+spec:
+  type: NodePort
+  selector:
+    app: federated-cluster
+    module: federation-apiserver
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

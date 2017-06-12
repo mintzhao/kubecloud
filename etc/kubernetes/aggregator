@@ -1,0 +1,23 @@
+###
+## kubernetes system config
+##
+## The following values are used to configure the kube-aggregator
+##
+
+## The address on the local server to listen to.
+KUBE_ADDRESS="--bind-address=10.1.2.154 --secure-port=6443"
+
+## Comma separated list of nodes in the etcd cluster
+KUBE_ETCD_SERVERS="--etcd-servers=https://10.1.2.154:2379,https://10.1.2.147:2379 --etcd-cafile=/etc/kubernetes/ssl/ca.pem --etcd-certfile=/etc/kubernetes/ssl/cert.pem --etcd-keyfile=/etc/kubernetes/ssl/cert-key.pem --etcd-prefix=/registry/kube-aggregator.kubernetes.io/"
+
+## kubernetes authentication
+KUBE_AUTHENTICATION="--client-ca-file=/etc/kubernetes/ssl/ca.pem"
+
+## kubernetes tls/https/serviceAccount
+KUBE_TLS="--cert-dir=/var/run/kubernetes --tls-ca-file=/etc/kubernetes/ssl/ca.pem --tls-cert-file=/etc/kubernetes/ssl/cert.pem --tls-private-key-file=/etc/kubernetes/ssl/cert-key.pem --proxy-client-cert-file=/etc/kubernetes/ssl/cert.pem --proxy-client-key-file=/etc/kubernetes/ssl/cert-key.pem"
+
+## gc
+KUBE_GC="--delete-collection-workers=2 --enable-garbage-collector=true "
+
+## Add your own!
+KUBE_API_ARGS="--enable-swagger-ui=true"

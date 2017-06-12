@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: federation-controller-manager
+  namespace: federation
+  labels:
+    app: federated-cluster
+spec:
+  template:
+    metadata:
+      name: federation-controller-manager
+      labels:
+        app: federated-cluster
+        module: federation-controller-manager
+    spec:
+      volumes:
+      - name: ssl-certs
+        hostPath:
+          path: /etc/ssl/certs
+      containers:
+      - name: controller-manager
+        image: docker.cloudin.com/google_containers/hyperkube-amd64:v1.6.2
+        args:
+          - /hyperkube
+          - federation-controller-manager
+          - --master=http://federation-apiserver:8080
+          - --dns-provider=coredns
+          - --federation-name=federation
+          - --zone-name=$(ZONE_NAME)
+          - --v=2
+        volumeMounts:
+        - name: ssl
+          readOnly: true
+          mountPath: /etc/ssl
+        ports:
+          - containerPort: 443
+            name: https
+          - containerPort: 8080
+            name: local
