@@ -1,0 +1,83 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: clair
+  namespace: kube-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: clair
+    spec:
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: clairsecret
+      containers:
+      - name: clair
+        image: docker.cloudin.com/coreos/clair:v2.0.1
+        args:
+          - "-config"
+          - "/config/config.yaml"
+        ports:
+        - containerPort: 6060
+        - containerPort: 6061
+        volumeMounts:
+        - name: secret-volume
+          mountPath: /config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clair
+  namespace: kube-system
+  labels:
+    k8s-app: clair
+spec:
+  ports:
+  - port: 6060
+    protocol: TCP
+    name: port0
+  - port: 6061
+    protocol: TCP
+    name: port1
+  selector:
+    k8s-app: clair
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: clair-postgres
+  namespace: kube-system
+  labels:
+    k8s-app: clair-postgres
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: clair-postgres
+    spec:
+      containers:
+      - name: clair-postgres
+        image: docker.cloudin.com/postgres/postgres:9.6.3
+        env:
+        - name: POSTGRES_PASSWORD
+          value: password
+        ports:
+        - containerPort: 5432
+          name: postgres-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clair-postgres
+  namespace: kube-system
+  labels:
+    k8s-app: clair-postgres
+spec:
+  ports:
+    - port: 5432
+  selector:
+    k8s-app: clair-postgres

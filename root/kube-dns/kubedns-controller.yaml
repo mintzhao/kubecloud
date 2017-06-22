@@ -129,6 +129,7 @@ spec:
         - --server=/cluster.local/127.0.0.1#10053
         - --server=/in-addr.arpa/127.0.0.1#10053
         - --server=/ip6.arpa/127.0.0.1#10053
+        - --server=/cluster.federation./192.168.2.101#53
         ports:
         - containerPort: 53
           name: dns

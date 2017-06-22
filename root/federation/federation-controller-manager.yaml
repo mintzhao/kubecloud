@@ -5,6 +5,8 @@ metadata:
   namespace: federation
   labels:
     app: federated-cluster
+  annotations:
+    federations: 
 spec:
   template:
     metadata:
@@ -25,6 +27,7 @@ spec:
           - federation-controller-manager
           - --master=http://federation-apiserver:8080
           - --dns-provider=coredns
+          - --dns-provider-config={{.FEDERATION_DNS_PROVIDER_CONFIG}}
           - --federation-name=federation
           - --zone-name=$(ZONE_NAME)
           - --v=2
